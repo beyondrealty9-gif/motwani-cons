@@ -15,13 +15,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme] = useState<Theme>("light");
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", "light");
-    localStorage.setItem("motwani-theme", "light");
+    try {
+      document.documentElement.setAttribute("data-theme", "light");
+      localStorage.setItem("motwani-theme", "light");
+    } catch {
+      // Ignore if localStorage is unavailable
+    }
   }, []);
 
   const toggleTheme = () => {
     // Night mode removed as requested by user - force light mode
-    document.documentElement.setAttribute("data-theme", "light");
+    try {
+      document.documentElement.setAttribute("data-theme", "light");
+    } catch {}
   };
 
   return (

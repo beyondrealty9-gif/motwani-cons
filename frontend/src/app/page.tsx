@@ -123,98 +123,103 @@ export default function Home() {
     handleScroll();
 
     // GSAP ScrollTrigger Animations
-    const ctx = gsap.context(() => {
-      // 1. Hero Exit Animation
-      if (heroSectionRef.current && heroContentRef.current) {
-        gsap.to(heroContentRef.current, {
-          y: -120,
-          x: -60,
-          opacity: 0,
-          scale: 0.95,
-          ease: "power2.inOut",
-          scrollTrigger: {
-            trigger: heroSectionRef.current,
-            start: "top top",
-            end: "+=100%",
-            scrub: 0.5,
-            pin: true,
-            pinSpacing: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
-      }
-
-      // 2. About Section Reveal Animations (Top 3 Cards, Pillars Heading, 3 Pillar Cards)
-      if (aboutSectionRef.current) {
-        const topCards = aboutSectionRef.current.querySelectorAll(".about-top-card");
-        const pillarsHeading = aboutSectionRef.current.querySelector(".pillars-heading");
-        const pillarCards = aboutSectionRef.current.querySelectorAll(".pillar-card");
-
-        if (topCards.length > 0) {
-          gsap.fromTo(
-            topCards,
-            { opacity: 0, y: 40 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              stagger: 0.18,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: aboutSectionRef.current,
-                start: "top 80%",
-                toggleActions: "play none none none",
-                once: true,
-              },
-            }
-          );
+    let ctx: gsap.Context | undefined;
+    try {
+      ctx = gsap.context(() => {
+        // 1. Hero Exit Animation
+        if (heroSectionRef.current && heroContentRef.current) {
+          gsap.to(heroContentRef.current, {
+            y: -120,
+            x: -60,
+            opacity: 0,
+            scale: 0.95,
+            ease: "power2.inOut",
+            scrollTrigger: {
+              trigger: heroSectionRef.current,
+              start: "top top",
+              end: "+=100%",
+              scrub: 0.5,
+              pin: true,
+              pinSpacing: true,
+              anticipatePin: 1,
+              invalidateOnRefresh: true,
+            },
+          });
         }
 
-        if (pillarsHeading) {
-          gsap.fromTo(
-            pillarsHeading,
-            { opacity: 0, y: 35 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: pillarsHeading,
-                start: "top 85%",
-                toggleActions: "play none none none",
-                once: true,
-              },
-            }
-          );
-        }
+        // 2. About Section Reveal Animations (Top 3 Cards, Pillars Heading, 3 Pillar Cards)
+        if (aboutSectionRef.current) {
+          const topCards = aboutSectionRef.current.querySelectorAll(".about-top-card");
+          const pillarsHeading = aboutSectionRef.current.querySelector(".pillars-heading");
+          const pillarCards = aboutSectionRef.current.querySelectorAll(".pillar-card");
 
-        if (pillarCards.length > 0) {
-          gsap.fromTo(
-            pillarCards,
-            { opacity: 0, y: 40 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.7,
-              stagger: 0.18,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: pillarCards[0],
-                start: "top 85%",
-                toggleActions: "play none none none",
-                once: true,
-              },
-            }
-          );
+          if (topCards.length > 0) {
+            gsap.fromTo(
+              topCards,
+              { opacity: 0, y: 40 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
+                stagger: 0.18,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: aboutSectionRef.current,
+                  start: "top 80%",
+                  toggleActions: "play none none none",
+                  once: true,
+                },
+              }
+            );
+          }
+
+          if (pillarsHeading) {
+            gsap.fromTo(
+              pillarsHeading,
+              { opacity: 0, y: 35 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: pillarsHeading,
+                  start: "top 85%",
+                  toggleActions: "play none none none",
+                  once: true,
+                },
+              }
+            );
+          }
+
+          if (pillarCards.length > 0) {
+            gsap.fromTo(
+              pillarCards,
+              { opacity: 0, y: 40 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.7,
+                stagger: 0.18,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: pillarCards[0],
+                  start: "top 85%",
+                  toggleActions: "play none none none",
+                  once: true,
+                },
+              }
+            );
+          }
         }
-      }
-    });
+      });
+    } catch (e) {
+      console.warn("GSAP context init error:", e);
+    }
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      ctx.revert();
+      if (ctx) ctx.revert();
     };
   }, []);
 

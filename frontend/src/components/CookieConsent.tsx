@@ -9,25 +9,33 @@ export default function CookieConsent() {
   const [consentGiven, setConsentGiven] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const consent = localStorage.getItem("motwani_cookie_consent");
-    if (!consent) {
-      // Small delay before showing banner
-      const timer = setTimeout(() => setShowBanner(true), 1200);
-      return () => clearTimeout(timer);
-    } else {
-      setConsentGiven(consent === "accepted");
+    try {
+      const consent = localStorage.getItem("motwani_cookie_consent");
+      if (!consent) {
+        // Small delay before showing banner
+        const timer = setTimeout(() => setShowBanner(true), 1200);
+        return () => clearTimeout(timer);
+      } else {
+        setConsentGiven(consent === "accepted");
+      }
+    } catch {
+      // In case localStorage is blocked
     }
   }, []);
 
   const handleAcceptAll = () => {
-    localStorage.setItem("motwani_cookie_consent", "accepted");
+    try {
+      localStorage.setItem("motwani_cookie_consent", "accepted");
+    } catch {}
     setConsentGiven(true);
     setShowBanner(false);
     setShowPreferences(false);
   };
 
   const handleRejectNonEssential = () => {
-    localStorage.setItem("motwani_cookie_consent", "rejected");
+    try {
+      localStorage.setItem("motwani_cookie_consent", "rejected");
+    } catch {}
     setConsentGiven(false);
     setShowBanner(false);
     setShowPreferences(false);

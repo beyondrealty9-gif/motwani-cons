@@ -1,0 +1,34 @@
+"use client";
+
+import React, { useEffect } from "react";
+
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error("Caught error in GlobalError:", error);
+  }, [error]);
+
+  return (
+    <html lang="en">
+      <body className="min-h-screen flex flex-col items-center justify-center p-6 bg-white text-gray-900 font-sans text-center">
+        <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+          <h2 className="text-xl font-bold mb-2 text-gray-900">Motwani Constructions</h2>
+          <p className="text-gray-600 mb-6 text-sm">
+            Please reload the page to continue.
+          </p>
+          <button
+            onClick={() => reset()}
+            className="w-full py-3 bg-[#D95D16] hover:bg-[#c2410c] text-white font-semibold rounded-xl shadow-md transition-all cursor-pointer"
+          >
+            Reload Page
+          </button>
+        </div>
+      </body>
+    </html>
+  );
+}
