@@ -56,6 +56,7 @@ export default function Header() {
                 alt="Motwani Constructions Logo"
                 fill
                 priority
+                sizes="(max-width: 768px) 208px, (max-width: 1024px) 256px, 288px"
                 className="object-contain object-left"
               />
             </div>

@@ -93,7 +93,7 @@ export default function WhyUsPillarsSection({
             sizes="100vw"
             className="object-cover object-center"
             priority
-            quality={100}
+            quality={90}
           />
 
           {/* Light, ultra-clear warm vignette for high contrast without blur */}
