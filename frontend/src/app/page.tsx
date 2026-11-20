@@ -137,12 +137,8 @@ export default function Home() {
             scrollTrigger: {
               trigger: heroSectionRef.current,
               start: "top top",
-              end: "+=100%",
+              end: "bottom top",
               scrub: 0.5,
-              pin: true,
-              pinSpacing: true,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
             },
           });
         }
