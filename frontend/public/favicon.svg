@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="100%" height="100%">
+  <g fill="#D95D16">
+    <!-- Left Side: 5 Vertical Tapered Pillars -->
+    <!-- Pillar 1 (Outermost Left) -->
+    <polygon points="12,0 25,16 25,230 12,238" />
+    <!-- Pillar 2 -->
+    <polygon points="30,22 43,36 43,230 30,238" />
+    <!-- Pillar 3 -->
+    <polygon points="48,42 61,54 61,230 48,238" />
+    <!-- Pillar 4 -->
+    <polygon points="66,60 79,70 79,230 66,238" />
+    <!-- Pillar 5 (Innermost Left) -->
+    <polygon points="84,76 95,84 95,230 84,238" />
+
+    <!-- Right Side: 5 Vertical Tapered Pillars (Symmetrical Mirror) -->
+    <!-- Pillar 5 (Innermost Right) -->
+    <polygon points="105,84 116,76 116,238 105,230" />
+    <!-- Pillar 4 -->
+    <polygon points="121,70 134,60 134,238 121,230" />
+    <!-- Pillar 3 -->
+    <polygon points="139,54 152,42 152,238 139,230" />
+    <!-- Pillar 2 -->
+    <polygon points="157,36 170,22 170,238 157,230" />
+    <!-- Pillar 1 (Outermost Right) -->
+    <polygon points="175,16 188,0 188,238 175,230" />
+  </g>
+</svg>

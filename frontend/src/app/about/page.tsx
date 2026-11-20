@@ -1,0 +1,825 @@
+"use client";
+
+import React, { useRef, useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Compass, Shield, Award, ArrowRight, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import CinematicReveal from "../../components/CinematicReveal";
+import TeamCard from "../../components/TeamCard";
+import ValueAccordion from "../../components/ValueAccordion";
+import PullQuote from "../../components/PullQuote";
+import { motionVariants } from "../../components/motion-variants";
+
+interface TeamMember {
+  name: string;
+  role: string;
+  bio: string;
+  image: string;
+  spec: string;
+  phone?: string;
+  objectPosition?: string;
+}
+
+export default function About() {
+  const [revealActive, setRevealActive] = useState(true);
+  const [isWiped, setIsWiped] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [videoTiltX, setVideoTiltX] = useState(0);
+  
+  const imgRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // 1. Trigger Slide Curtain Wipe on mount
+    const timer = setTimeout(() => {
+      setRevealActive(false);
+    }, 100);
+
+    // 2. Trigger Tablet Mockup Wipe automatically after curtain opens
+    const wipeTimer = setTimeout(() => {
+      setIsWiped(true);
+    }, 700);
+
+    // 3. Setup IntersectionObserver for clip-path unmask wipe (backup/redundancy)
+    const clipObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsWiped(true);
+          clipObserver.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.05 }
+    );
+    if (imgRef.current) clipObserver.observe(imgRef.current);
+
+    // 4. Scroll Tilt Listener for Video Card Parallax
+    const handleScroll = () => {
+      if (videoCardRef.current) {
+        const rect = videoCardRef.current.getBoundingClientRect();
+        const viewHeight = window.innerHeight;
+        const cardCenter = rect.top + rect.height / 2;
+        // Calculate offset fraction from viewport center (-1 to 1)
+        const offsetFraction = (cardCenter - viewHeight / 2) / (viewHeight / 2);
+        // Tilt max 6 degrees
+        setVideoTiltX(offsetFraction * -5);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(wipeTimer);
+      clipObserver.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play().catch(err => console.log(err));
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const team: TeamMember[] = [
+    {
+      name: "Arjun Karthik Bera",
+      role: "Partner, CEO",
+      bio: "With over a decade of strategic leadership experience at prestigious firms like Bhutani Infra in Delhi, Arjun brings unparalleled expertise to JA Homes. His visionary approach to luxury real estate drives our commitment to delivering bespoke architectural masterpieces.",
+      image: "https://res.cloudinary.com/pctbshnp/image/upload/v1782974948/Arjun_ez5php.jpg",
+      spec: "CEO",
+      phone: "919811086206"
+    },
+    {
+      name: "Harendra Kumar",
+      role: "Manager & Sales Head",
+      bio: "Harendra possesses an extensive background collaborating with premier real estate brands across Delhi and Bhubaneswar. His deep market insight and dedication to client relations ensure that every bespoke acquisition is a seamless and extraordinary experience.",
+      image: "https://res.cloudinary.com/pctbshnp/image/upload/v1782974948/Harendra_kyqarb.jpg",
+      spec: "Sales Head",
+      phone: "919348402331"
+    },
+    {
+      name: "Debiprasad Deo",
+      role: "Real Estate Marketing",
+      bio: "Debiprasad brings 8+ years of experience in real estate marketing, ensuring our bespoke architectural masterpieces reach the right visionary clientele across global markets.",
+      image: "https://res.cloudinary.com/pctbshnp/image/upload/v1782974948/Debiprasad_Deo_tsg4gr.jpg",
+      spec: "Marketing Director",
+      phone: "917008421963",
+      objectPosition: "object-[right_20%]"
+    }
+  ];
+
+  // Drop-cap text splitting
+  const storyParagraph1 = "With a passion for properties and a commitment to excellence from 25 years, we are your trusted partner in navigating the world of real estate. Our experienced team of dedicated professionals are here to guide you every step. We understand that a home is more than just a structure; it’s where memories are made and futures are built. Discover the difference of building your dream home with a team that cares about your aspirations.";
+  const dropCapLetter = storyParagraph1[0];
+  const storyRestText = storyParagraph1.slice(1);
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-amber-500 selection:text-black relative">
+      
+      {/* Signature slideReveal: Horizontal Curtain wipe in warm sand tone */}
+      <div
+        className={`fixed inset-0 z-50 bg-[#E8E2D7] transition-transform duration-[1100ms] ease-[cubic-bezier(0.85,0,0.15,1)] ${
+          revealActive ? "translate-x-0" : "translate-x-full pointer-events-none"
+        }`}
+        aria-hidden="true"
+      />
+
+      {/* Shared Header Navigation */}
+      <Header />
+
+      {/* Top Spacer */}
+      <div className="h-28" />
+
+      <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-12">
+        
+        {/* Intro Section / Our Story (Split-Screen layout) */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center mb-28">
+          
+          {/* Left Column: Story Text with Drop-Cap */}
+          <div className="lg:col-span-6 flex flex-col gap-6">
+            <CinematicReveal className="flex flex-col gap-2">
+              {/* SEO Badges */}
+              <div className="flex flex-wrap gap-2 mb-2">
+                <span className="text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider text-[#D95D16] bg-[#D95D16]/10 px-3 py-1 rounded-full border border-[#D95D16]/20">
+                  flats for sale in bhubaneswar
+                </span>
+                <span className="text-[10px] md:text-xs font-mono font-bold uppercase tracking-wider text-[#D95D16] bg-[#D95D16]/10 px-3 py-1 rounded-full border border-[#D95D16]/20">
+                  real estate company in bhubaneswar
+                </span>
+              </div>
+
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.4em] block">
+                About Us
+              </span>
+              <h1 className="text-4xl md:text-5xl font-serif tracking-wide font-light leading-tight">
+                Connecting hearts to homes
+              </h1>
+            </CinematicReveal>
+
+            <CinematicReveal className="flex flex-col gap-6" delay={150}>
+              <p className="text-muted text-sm md:text-base leading-relaxed font-sans font-light">
+                <span className="float-left text-5xl md:text-6xl font-serif text-amber-550 dark:text-amber-500 leading-none pt-1.5 pr-3 font-semibold select-none">
+                  {dropCapLetter}
+                </span>
+                {storyRestText}
+              </p>
+              <p className="text-muted text-sm md:text-base leading-relaxed font-sans font-light">
+                Motwani Constructions proudly celebrates 25 years of excellence, trust, and innovation in the real estate industry. As Motwani Constructions looks back on our remarkable journey, we’re excited about the future and remain dedicated to providing the highest quality of service, innovative solutions, and unwavering commitment to our clients and partners.
+              </p>
+            </CinematicReveal>
+          </div>
+
+          {/* Right Column: Tablet Mockup UI with revealing clip-path animation */}
+          <div className="lg:col-span-6 w-full flex items-center justify-center">
+            <div
+              ref={imgRef}
+              className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl transition-all duration-[1600ms] ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-center p-8 md:p-12"
+              style={{
+                clipPath: isWiped ? "inset(0 0 0 0)" : "inset(0 100% 0 0)",
+                background: "radial-gradient(circle at center, #7a9cb9 0%, #466c8f 100%)",
+              }}
+            >
+              {/* Subtle fabric noise overlay */}
+              <div className="absolute inset-0 noise-overlay opacity-10 pointer-events-none" />
+
+              {/* Tilted Tablet Frame */}
+              <div
+                className="relative w-[85%] aspect-[3/4] bg-[#0c0c0c] rounded-[2.2rem] p-[3%] border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.5)] flex flex-col justify-center transition-transform duration-700 hover:scale-[1.02]"
+                style={{
+                  transform: "perspective(1200px) rotateX(12deg) rotateY(-20deg) rotateZ(14deg)",
+                }}
+              >
+                {/* Screen Content Wrapper */}
+                <div className="relative w-full h-full bg-[#faf9f6] rounded-[1.6rem] overflow-hidden border border-black/5 flex flex-col p-2.5 md:p-4 text-black gap-2 select-none pointer-events-none">
+                  {/* Top Bar inside tablet */}
+                  <div className="flex justify-between items-center w-full text-[5px] md:text-[7px] font-mono tracking-widest text-black/55 font-bold">
+                    <span>JA / COLLECTIONS</span>
+                    <span>FEATURED</span>
+                  </div>
+
+                  {/* Heading inside tablet */}
+                  <div className="text-center my-1 flex flex-col items-center gap-0.5">
+                    <span className="text-[5px] md:text-[7px] font-mono text-amber-600 tracking-wider uppercase">ARCHITECTURAL SELECTIONS</span>
+                    <h3 className="text-[9px] md:text-xs font-serif font-light text-black tracking-wide leading-tight max-w-[85%] uppercase">
+                      Selected for your atmosphere
+                    </h3>
+                  </div>
+
+                  {/* 4 Cards Grid inside tablet */}
+                  <div className="grid grid-cols-2 gap-2 flex-1 overflow-hidden mt-1">
+                    {/* Card 1 */}
+                    <div className="relative rounded-xl overflow-hidden border border-black/5 bg-white shadow-sm flex flex-col justify-between p-1.5">
+                      <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden">
+                        <Image
+                          src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=400&q=80"
+                          alt="Villa Opalina"
+                          fill
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-0.5 mt-1">
+                        <span className="text-[5px] md:text-[6px] text-amber-600 font-mono uppercase">LAKE COMO, ITALY</span>
+                        <h4 className="text-[7px] md:text-[9px] font-serif font-semibold text-black uppercase truncate">Villa Opalina</h4>
+                      </div>
+                    </div>
+
+                    {/* Card 2 */}
+                    <div className="relative rounded-xl overflow-hidden border border-black/5 bg-white shadow-sm flex flex-col justify-between p-1.5">
+                      <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden">
+                        <Image
+                          src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=400&q=80"
+                          alt="Palazzo Verde"
+                          fill
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-0.5 mt-1">
+                        <span className="text-[5px] md:text-[6px] text-amber-600 font-mono uppercase">BIARRITZ, FRANCE</span>
+                        <h4 className="text-[7px] md:text-[9px] font-serif font-semibold text-black uppercase truncate">Palazzo Verde</h4>
+                      </div>
+                    </div>
+
+                    {/* Card 3 */}
+                    <div className="relative rounded-xl overflow-hidden border border-black/5 bg-white shadow-sm flex flex-col justify-between p-1.5">
+                      <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden">
+                        <Image
+                          src="https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&w=400&q=80"
+                          alt="Atelier Penthouse"
+                          fill
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-0.5 mt-1">
+                        <span className="text-[5px] md:text-[6px] text-amber-600 font-mono uppercase">PARIS, FRANCE</span>
+                        <h4 className="text-[7px] md:text-[9px] font-serif font-semibold text-black uppercase truncate">Atelier Penthouse</h4>
+                      </div>
+                    </div>
+
+                    {/* Card 4 */}
+                    <div className="relative rounded-xl overflow-hidden border border-black/5 bg-white shadow-sm flex flex-col justify-between p-1.5">
+                      <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden">
+                        <Image
+                          src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=400&q=80"
+                          alt="Casa Lumina"
+                          fill
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-0.5 mt-1">
+                        <span className="text-[5px] md:text-[6px] text-amber-600 font-mono uppercase">MYKONOS, GREECE</span>
+                        <h4 className="text-[7px] md:text-[9px] font-serif font-semibold text-black uppercase truncate">Casa Lumina</h4>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tablet Footer */}
+                  <div className="flex justify-between items-center w-full text-[5px] md:text-[7px] text-black/40 font-mono tracking-wider pt-1.5 border-t border-black/5">
+                    <span>DESIGNED BY JA HOMES</span>
+                    <span>TRUSTED WORLDWIDE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Supporting Image Spacer 1: Blueprint Close-up */}
+        <section className="mb-28">
+          <CinematicReveal className="w-full">
+            <div className="relative h-[45vh] w-full rounded-3xl overflow-hidden border border-border-color shadow-xl">
+              <Image
+                src="https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=1200&q=80"
+                alt="Architectural blueprint and schematic detailing draft closeup"
+                fill
+                sizes="100vw"
+                className="object-cover opacity-80 filter brightness-95"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60 z-10 pointer-events-none" />
+              <div className="absolute bottom-6 left-8 z-20 font-mono text-[9px] text-white/60 tracking-widest uppercase">
+                SPECIFICATION: MAPPING BIOPHILIC SCHEMATICS
+              </div>
+            </div>
+          </CinematicReveal>
+        </section>
+
+        {/* Values Section: Journey / Vision / Accordion Layout */}
+        <section className="max-w-4xl mx-auto mb-28">
+          <div className="text-center mb-16">
+            <CinematicReveal className="flex flex-col gap-3">
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.4em]">
+                Core Architecture
+              </span>
+              <h2 className="text-3xl md:text-4xl font-serif tracking-wide font-light text-foreground">
+                How We Build
+              </h2>
+            </CinematicReveal>
+          </div>
+
+          <CinematicReveal delay={150}>
+            <ValueAccordion />
+          </CinematicReveal>
+        </section>
+
+        {/* Supporting Image Spacer 2: Construction Work Detail */}
+        <section className="mb-28">
+          <CinematicReveal className="w-full">
+            <div className="relative h-[45vh] w-full rounded-3xl overflow-hidden border border-border-color shadow-xl">
+              <Image
+                src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1200&q=80"
+                alt="Architectural concrete framing and slate stonework construction"
+                fill
+                sizes="100vw"
+                className="object-cover opacity-75"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60 z-10 pointer-events-none" />
+              <div className="absolute bottom-6 left-8 z-20 font-mono text-[9px] text-white/60 tracking-widest uppercase">
+                CRAFT: MASONRY CONCRETE AND SLATE DETAILING
+              </div>
+            </div>
+          </CinematicReveal>
+        </section>
+
+        {/* Cinematic Showcase Section: Rounded elevated card with 3D tilt-on-scroll */}
+        <section className="mb-28 max-w-5xl mx-auto px-2">
+          <div className="text-center mb-12">
+            <CinematicReveal className="flex flex-col gap-2">
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em] block">
+                Precision Sourcing
+              </span>
+              <h2 className="text-3xl md:text-4xl font-serif tracking-wide font-light text-foreground">
+                Precision Sourced & Assembled
+              </h2>
+            </CinematicReveal>
+          </div>
+
+          <CinematicReveal delay={150}>
+            <div
+              ref={videoCardRef}
+              className="relative rounded-3xl overflow-hidden glass-panel border border-border-color shadow-2xl bg-black aspect-video transition-transform duration-200 ease-out"
+              style={{
+                transform: `perspective(1200px) rotateX(${videoTiltX}deg)`,
+                willChange: "transform"
+              }}
+            >
+              <video
+                ref={videoRef}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover opacity-85 scale-100 group-hover:scale-102 transition-transform duration-1000 ease-out"
+              >
+                <source src="https://res.cloudinary.com/dtmqv7oqq/video/upload/v1782279962/JA_Homes_Built_With_Precision_202606231542_ib78yo.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent flex flex-col justify-end p-6 md:p-12">
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                  <div>
+                    <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.3em] mb-2 block">
+                      Cinematic Showcase
+                    </span>
+                    <h3 className="text-2xl md:text-3xl font-serif tracking-wide font-light text-[#faf9f6] max-w-lg mb-2">
+                      Built With Precision
+                    </h3>
+                    <p className="text-muted/80 text-xs md:text-sm max-w-md font-sans font-light leading-relaxed">
+                      A cinematic journey through our structural envelopes, biophilic layouts, and precision-cut organic materials.
+                    </p>
+                  </div>
+                  
+                  {/* Media Controls */}
+                  <div className="flex gap-3 self-start md:self-auto pointer-events-auto">
+                    <button
+                      onClick={togglePlay}
+                      className="w-10 h-10 rounded-full glass-panel border border-border-color hover:border-amber-500/30 flex items-center justify-center text-[#faf9f6] hover:text-amber-500 transition-all active:scale-95 cursor-pointer shadow-lg bg-black/40"
+                      aria-label={isPlaying ? "Pause video" : "Play video"}
+                    >
+                      {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                    </button>
+                    <button
+                      onClick={toggleMute}
+                      className="w-10 h-10 rounded-full glass-panel border border-border-color hover:border-amber-500/30 flex items-center justify-center text-[#faf9f6] hover:text-amber-500 transition-all active:scale-95 cursor-pointer shadow-lg bg-black/40"
+                      aria-label={isMuted ? "Unmute video" : "Mute video"}
+                    >
+                      {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CinematicReveal>
+        </section>
+
+        {/* Staggered Grid Pillars (Display as 3 cards, alternating image/icon reveal, lifts with shadow bloom) */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-8 mb-40 pt-10">
+          
+          {/* Pillar 1: Biophilic Design */}
+          <CinematicReveal className="h-full">
+            <div className="glass-panel p-8 rounded-2xl border border-border-color flex flex-col gap-5 h-full transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_-10px_rgba(41,105,194,0.3)] hover:border-amber-500/30">
+              <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                <Compass size={18} />
+              </div>
+              <h3 className="text-lg font-serif font-light text-foreground">Biophilic Design</h3>
+              <p className="text-muted text-xs md:text-sm font-sans font-light leading-relaxed">
+                Our structures are designed to match local topography, leveraging natural wind currents, solar seasonal angles, and geothermal resources to minimize active energy footprint.
+              </p>
+            </div>
+          </CinematicReveal>
+
+          {/* Pillar 2: Material Integrity (Alternating Image Reveal & translated lower for stagger) */}
+          <CinematicReveal className="h-full lg:translate-y-10" delay={150}>
+            <div className="relative p-8 rounded-2xl border border-border-color flex flex-col justify-end gap-5 h-full min-h-[300px] overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_-10px_rgba(41,105,194,0.3)] hover:border-amber-500/30">
+              {/* Background Image Reveal */}
+              <Image
+                src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=600&q=80"
+                alt="Tactile timber and stone detailing close-up"
+                fill
+                sizes="(max-width: 768px) 100vw, 30vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/85 z-10 transition-opacity duration-500 group-hover:opacity-75" />
+
+              {/* Content */}
+              <div className="relative z-20 flex flex-col gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-500 self-start">
+                  <Shield size={18} />
+                </div>
+                <h3 className="text-lg font-serif font-light text-[#faf9f6]">Material Integrity</h3>
+                <p className="text-white/70 text-xs md:text-sm font-sans font-light leading-relaxed">
+                  We source materials exclusively from carbon-certified forests and quarries. Solid cedar timbers, premium marble slabs, and Belgian linens are selected for texture and lifetime endurance.
+                </p>
+              </div>
+            </div>
+          </CinematicReveal>
+
+          {/* Pillar 3: Next-Gen Intelligence */}
+          <CinematicReveal className="h-full" delay={300}>
+            <div className="glass-panel p-8 rounded-2xl border border-border-color flex flex-col gap-5 h-full transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_-10px_rgba(41,105,194,0.3)] hover:border-amber-500/30">
+              <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                <Award size={18} />
+              </div>
+              <h3 className="text-lg font-serif font-light text-foreground">Next-Gen Intelligence</h3>
+              <p className="text-muted text-xs md:text-sm font-sans font-light leading-relaxed">
+                Every home integrates high-efficiency automated systems. Smart glazing tints automatically based on UV metrics, while bioethanol double-sided hearths provide clean warmth.
+              </p>
+            </div>
+          </CinematicReveal>
+        </section>
+
+        {/* Pull-Quote Section */}
+        <section className="mb-28 border-t border-b border-border-color/30">
+          <PullQuote
+            quote="Motwani Constructions proudly celebrates 25 years of excellence, trust, and innovation in the real estate industry. As we look back on our remarkable journey, we remain dedicated to providing the highest quality of service and an unwavering commitment to our clients."
+            author="Motwani Constructions"
+            role="The Tradition of Trust"
+          />
+        </section>
+
+        {/* ─── COMPLETED, ONGOING & UPCOMING PROJECTS SHOWCASE ─── */}
+        <section className="mb-28 flex flex-col gap-16">
+          
+          {/* Ongoing & Upcoming Projects Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            {/* Ongoing Projects */}
+            <CinematicReveal className="h-full">
+              <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-border-color shadow-xl flex flex-col gap-6 h-full">
+                <div className="flex items-center justify-between border-b border-border-color/40 pb-4">
+                  <div>
+                    <span className="text-[#D95D16] text-xs font-mono uppercase tracking-[0.2em]">CURRENT DEVELOPMENTS</span>
+                    <h3 className="text-2xl font-serif font-light text-foreground mt-1">Ongoing Projects</h3>
+                  </div>
+                  <span className="bg-[#D95D16] text-white text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+                    7 Active
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm font-sans">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-800 font-mono text-xs uppercase tracking-wider text-muted">
+                        <th className="py-3 px-2">Project Name</th>
+                        <th className="py-3 px-2">Location</th>
+                        <th className="py-3 px-2 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                      {[
+                        { name: "ANANTAM", location: "JHARAPADA" },
+                        { name: "ANANDAM", location: "GHATIKIA" },
+                        { name: "MOTWANI SANSKRUTI", location: "KALINGA NAGAR" },
+                        { name: "CODENAME CASCADE", location: "KALINGA NAGAR" },
+                        { name: "GM TERRACE", location: "NAKHARA" },
+                        { name: "BLISS", location: "PAHALA" },
+                        { name: "LORDSWAY LAXMI", location: "SIULA" },
+                      ].map((proj, i) => (
+                        <tr key={i} className="hover:bg-[#D95D16]/5 transition-colors">
+                          <td className="py-3.5 px-2 font-bold text-foreground">{proj.name}</td>
+                          <td className="py-3.5 px-2 text-muted font-mono text-xs">{proj.location}</td>
+                          <td className="py-3.5 px-2 text-right">
+                            <span className="text-[10px] font-mono font-bold uppercase text-[#D95D16] bg-[#D95D16]/10 px-2.5 py-0.5 rounded-full border border-[#D95D16]/20">
+                              ONGOING
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </CinematicReveal>
+
+            {/* Upcoming Projects */}
+            <CinematicReveal className="h-full" delay={150}>
+              <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 border border-border-color shadow-xl flex flex-col gap-6 h-full">
+                <div className="flex items-center justify-between border-b border-border-color/40 pb-4">
+                  <div>
+                    <span className="text-[#D95D16] text-xs font-mono uppercase tracking-[0.2em]">FUTURE SANCTUARIES</span>
+                    <h3 className="text-2xl font-serif font-light text-foreground mt-1">Upcoming Projects</h3>
+                  </div>
+                  <span className="bg-gray-900 text-[#D95D16] text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[#D95D16]/30">
+                    3 Pipeline
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm font-sans">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-800 font-mono text-xs uppercase tracking-wider text-muted">
+                        <th className="py-3 px-2">Project Name</th>
+                        <th className="py-3 px-2">Location</th>
+                        <th className="py-3 px-2 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                      {[
+                        { name: "ANANDAM", location: "GHATIKIA" },
+                        { name: "CODENAME SANSKRUTI", location: "SIULA" },
+                        { name: "CODENAME CASCADE", location: "TRISULIA" },
+                      ].map((proj, i) => (
+                        <tr key={i} className="hover:bg-[#D95D16]/5 transition-colors">
+                          <td className="py-3.5 px-2 font-bold text-foreground">{proj.name}</td>
+                          <td className="py-3.5 px-2 text-muted font-mono text-xs">{proj.location}</td>
+                          <td className="py-3.5 px-2 text-right">
+                            <span className="text-[10px] font-mono font-bold uppercase text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-700">
+                              UPCOMING
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </CinematicReveal>
+
+          </div>
+
+          {/* Completed Projects Historical Timeline (1998 – 2023) */}
+          <CinematicReveal className="w-full">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 md:p-12 border border-border-color shadow-2xl flex flex-col gap-10">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border-color/40 pb-6">
+                <div className="flex flex-col gap-2">
+                  <span className="text-[#D95D16] text-xs font-mono uppercase tracking-[0.4em]">
+                    25-YEAR HISTORICAL FOOTPRINTS
+                  </span>
+                  <h3 className="text-3xl font-serif font-light text-foreground">
+                    Completed Projects (1998 – 2023)
+                  </h3>
+                </div>
+                <div className="text-xs font-mono text-muted uppercase tracking-widest font-bold">
+                  50+ Landmark Developments
+                </div>
+              </div>
+
+              {/* Grid of Year Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  { year: "1998", projects: [{ name: "BASANT VILLA APARTMENT", loc: "BHOOMIKHAL" }] },
+                  { year: "2001", projects: [{ name: "BHAWANI ASHOK ENCLAVE", loc: "GANGA NAGAR, UNIT-6" }] },
+                  { year: "2002", projects: [{ name: "YASHODHARA ENCLAVE", loc: "SAHID NAGAR" }] },
+                  {
+                    year: "2003",
+                    projects: [
+                      { name: "SAUDAMINI ENCLAVE", loc: "B.J.B. NAGAR" },
+                      { name: "MOHARATHA ENCLAVE", loc: "BHDDESHWARI COLONY" },
+                      { name: "LAXMI VIHAR", loc: "NANDAN KANAN ROAD" },
+                      { name: "LAXMI KUTIR", loc: "BALLIA PANDA, PURI" },
+                      { name: "NARAYANI VIP ENCLAVE", loc: "VIP COLONY" },
+                      { name: "SUBHASHREE NILAYAM", loc: "IRC VILLAGE" },
+                      { name: "JYOTSHNA ENCLAVE", loc: "JAYADEV VIHAR" },
+                    ]
+                  },
+                  { year: "2004", projects: [{ name: "GANESH", loc: "JAGAMARA" }] },
+                  {
+                    year: "2005",
+                    projects: [
+                      { name: "DHIRENDER NATH VILLA", loc: "VIVEKANAND MARG" },
+                      { name: "LAXMI NIVAS", loc: "CHAKRATIRHA ROAD, PURI" },
+                    ]
+                  },
+                  {
+                    year: "2006",
+                    projects: [
+                      { name: "DAMYANTH HOMES", loc: "NAYAPALLY" },
+                      { name: "LAXMI VIHAR", loc: "PURI" },
+                      { name: "JASODA VIHAR", loc: "SAMANTRAPUR" },
+                    ]
+                  },
+                  {
+                    year: "2007",
+                    projects: [
+                      { name: "PALM GREEN", loc: "SHYAMPUR" },
+                      { name: "NA MAJESTIC", loc: "JHARPADA" },
+                    ]
+                  },
+                  {
+                    year: "2008",
+                    projects: [
+                      { name: "LAKE VIEW ENCLAVE", loc: "MADHUSUDAN NAGAR" },
+                      { name: "M.M. TOWER", loc: "CUTTACK" },
+                      { name: "NILAPADMA", loc: "JHARPADA" },
+                    ]
+                  },
+                  {
+                    year: "2009",
+                    projects: [
+                      { name: "TARINI PALACE", loc: "SAHID NAGAR" },
+                      { name: "AMRITA RESIDENCY", loc: "JHARSUGDA" },
+                      { name: "ARCON", loc: "PATIA" },
+                      { name: "PUJA ENCLAVE", loc: "B.J.B. NAGAR" },
+                    ]
+                  },
+                  {
+                    year: "2010",
+                    projects: [
+                      { name: "SASWATI HOMES", loc: "PATIA" },
+                      { name: "BIJAY LAXMI HOMES", loc: "TANKA PANI" },
+                    ]
+                  },
+                  {
+                    year: "2011",
+                    projects: [
+                      { name: "CGEWHO HOMES (PH-1)", loc: "TOMANDO" },
+                      { name: "BHARAT ENCLAVE", loc: "B.J.B. NAGAR" },
+                      { name: "AMRITA VIHAR", loc: "JHARSUGDA" },
+                    ]
+                  },
+                  {
+                    year: "2012",
+                    projects: [
+                      { name: "GYMKHANA PALM HEIGHTS", loc: "SHAMPUR" },
+                      { name: "AKASHDEEP HOMES", loc: "CUTTACK" },
+                      { name: "UTTAM HOMES", loc: "IRC VILLAGE" },
+                      { name: "ETINA RESIDENCY", loc: "OLD TOWN" },
+                    ]
+                  },
+                  {
+                    year: "2013",
+                    projects: [
+                      { name: "SITA ENCLAVE", loc: "OLD TOWN" },
+                      { name: "PRESTIGE RESIDENCY", loc: "JHARPADA" },
+                    ]
+                  },
+                  {
+                    year: "2014",
+                    projects: [
+                      { name: "KAILASH ENCLAVE", loc: "OLD TOWN" },
+                      { name: "UTTAM HOMES", loc: "CANAL ROAD, GGP COLONY" },
+                      { name: "GAGANI RESIDENCY", loc: "PATIA" },
+                    ]
+                  },
+                  { year: "2015", projects: [{ name: "KANIKA DEVI COTTAGES", loc: "RANGA BAZAR" }] },
+                  {
+                    year: "2016",
+                    projects: [
+                      { name: "BIJAY LAXMI ENCLAVE", loc: "PATIA" },
+                      { name: "SIBANGI VILLA", loc: "SHYAMPUR" },
+                      { name: "VINAYAK ENCLAVE", loc: "SUNDERPADA" },
+                    ]
+                  },
+                  {
+                    year: "2017",
+                    projects: [
+                      { name: "MADHWANI ENCLAVE", loc: "NUAGAON" },
+                      { name: "M J WOODS", loc: "ANDHARUA" },
+                    ]
+                  },
+                  { year: "2019", projects: [{ name: "LORDSWAY", loc: "SIULA" }] },
+                  { year: "2021", projects: [{ name: "SAI ENCLAVE", loc: "CHOWDWAR, CUTTACK" }] },
+                  { year: "2023", projects: [{ name: "UTKAL GREENEX", loc: "SUNDERPADA" }] },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="p-5 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 flex flex-col gap-3 hover:border-[#D95D16]/50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+                      <span className="text-xl font-bold font-mono text-[#D95D16]">
+                        {item.year}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-muted font-bold">
+                        {item.projects.length} {item.projects.length > 1 ? "Projects" : "Project"}
+                      </span>
+                    </div>
+
+                    <ul className="flex flex-col gap-2.5">
+                      {item.projects.map((p, pIdx) => (
+                        <li key={pIdx} className="flex flex-col">
+                          <span className="text-xs font-bold text-foreground font-sans">
+                            {p.name}
+                          </span>
+                          <span className="text-[11px] text-muted font-mono">
+                            {p.loc}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CinematicReveal>
+
+        </section>
+
+        {/* Supporting Image Spacer 3: Family Moment / Modern Deck Detail */}
+        <section className="mb-28">
+          <CinematicReveal className="w-full">
+            <div className="relative h-[45vh] w-full rounded-3xl overflow-hidden border border-border-color shadow-xl">
+              <Image
+                src="https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=1200&q=80"
+                alt="Modern wood clad architecture bathed in twilight warmth"
+                fill
+                sizes="100vw"
+                className="object-cover opacity-70"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60 z-10 pointer-events-none" />
+              <div className="absolute bottom-6 left-8 z-20 font-mono text-[9px] text-white/60 tracking-widest uppercase">
+                HERITAGE: ARCHITECTURAL LEGACIES IN EQUILIBRIUM
+              </div>
+            </div>
+          </CinematicReveal>
+        </section>
+
+
+        {/* CTA to Portfolio */}
+        <section className="max-w-4xl mx-auto mb-16">
+          <CinematicReveal>
+            <div className="bg-foreground/[0.02] border border-border-color p-10 md:p-16 rounded-3xl text-center flex flex-col items-center gap-6 shadow-lg relative overflow-hidden">
+              <div className="absolute inset-0 noise-overlay z-10" />
+              
+              <span className="text-amber-500 text-xs font-mono uppercase tracking-[0.4em] relative z-20">Get Started</span>
+              
+              <h2 className="text-2xl md:text-4xl font-serif font-light tracking-wide max-w-xl text-foreground relative z-20">
+                Let&apos;s Co-Design Your Custom Sanctuary
+              </h2>
+              
+              <p className="text-muted text-xs md:text-sm font-sans font-light max-w-md leading-relaxed relative z-20">
+                Connect with our architects to configure structural blueprints, select quarry slabs, and map ecological automation.
+              </p>
+              
+              <div className="flex gap-4 mt-2 relative z-20">
+                <Link
+                  href="/projects"
+                  className={`bg-gold-gradient text-black text-xs font-semibold uppercase tracking-widest px-6 py-3.5 rounded-full flex items-center gap-2 ${motionVariants.ctaInteractive}`}
+                >
+                  Explore Projects <ArrowRight size={14} />
+                </Link>
+                <Link
+                  href="/book"
+                  className={`bg-foreground/5 hover:bg-foreground/10 text-foreground text-xs font-semibold uppercase tracking-widest px-6 py-3.5 rounded-full ${motionVariants.ctaInteractive}`}
+                >
+                  Schedule Tour
+                </Link>
+              </div>
+            </div>
+          </CinematicReveal>
+        </section>
+      </main>
+
+      {/* Shared Footer */}
+      <Footer />
+    </div>
+  );
+}
